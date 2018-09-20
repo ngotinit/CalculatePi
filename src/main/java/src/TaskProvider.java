@@ -2,33 +2,37 @@ package src;
 
 /**
  * @author T_Tin on 9/16/2018.
+ * @param
  */
-public class TaskProvider extends GetCore {
+public class TaskProvider{
+    private double numberinput;
+    private double start = 0;
+    private double valuepertask = 10000;
+    private double end = 0;
 
-    private static int valuePerTask = 1000 ;
-    private static  int maxThread = GetCore.getCoreCPU();
-    public static int head = 0;
-    public static int tail = valuePerTask;
-
-
-    public static int calculteNumberLoad (int n) {
-        int numberLoad = n / (maxThread * valuePerTask);
-        return numberLoad;
+    public double setInput(double n){
+        this.numberinput = n;
+        return numberinput;
     }
 
-    public static int calculateOverBalance (int n, int numberLoad){
-        int modOfn =  n - numberLoad * (maxThread * valuePerTask);
-        return modOfn;
+    public boolean hasTask(){
+        if(this.end < numberinput){
+            return true;
+        }else{
+            return false;
+        }
     }
 
-    public static int nextHead(){
-        head = tail;
-        return head;
-    }
+    synchronized Task next(){
+        if((end + valuepertask) < numberinput) {
+            start = end;
+            end = end + valuepertask;
+            return new Task(start,end);
+        }else{
+            start = end;
+            end = numberinput;
+            return new Task(start, numberinput);
+        }
 
-    public static int nextTail(){
-        tail =  tail + valuePerTask;
-        return tail;
     }
-
 }

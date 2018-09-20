@@ -7,17 +7,43 @@ import java.util.Scanner;
  * @param: Calculate an approximation to Pi
  */
 
-public abstract class MainPi {
+public abstract class MainPi{
 
-    public static Scanner scanner = new Scanner(System.in);
+    private static Scanner scanner = new Scanner(System.in);
+    private static double n;
+    private static double finalresult;
 
     public static void main(String[] args) throws InterruptedException {
-        int n = 0;
+
         System.out.println("Input integer:(press x to stop)");
         System.out.println("Input n:");
-        n = Integer.parseInt(scanner.nextLine());
-        PiWork pw = new PiWork();
-        pw.calculatePi(n);
+        n = Double.parseDouble(scanner.nextLine());
+        TaskProvider provider = new TaskProvider();
+        provider.setInput(n);
+
+        Thread t = new Thread(){
+            public void run(){
+                while(scanner.next().equals("x")){
+                    PiWork.stopProgram();
+                }
+            }
+        };
+        t.start();
+
+        Thread[] arrayworker= new Thread[GetCore.getCoreCPU()];
+        for(int i = 0; i< GetCore.getCoreCPU(); i++) {
+            arrayworker[i] = new PiWork(provider);
+            arrayworker[i].start();
+        }
+        for(int i = 0; i< GetCore.getCoreCPU(); i++){
+            arrayworker[i].join();
+        }
+        for(int i = 0; i< GetCore.getCoreCPU(); i++){
+            PiWork p = (PiWork) arrayworker[i];
+            finalresult += p.getResult();
+        }
+
+        System.out.println("Final result: " +  4*finalresult);
     }
 }
 
